@@ -123,19 +123,98 @@
 }
 
 @media (max-width: 768px) {
+  .heroSection {
+    padding: 2.5rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+
   .heroTitle {
-    font-size: 2.5rem;
+    font-size: 2rem;
+    line-height: 1.2;
   }
 
   .heroSubtitle {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    line-height: 1.4;
   }
 
   .heroTagline {
-    font-size: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .heroButtons {
+    gap: 0.8rem;
+  }
+
+  .btnSecondary {
+    padding: 0.7rem 1.5rem;
+    font-size: 0.95rem;
   }
 
   .featuresGrid {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .featureCard {
+    padding: 1.5rem;
+  }
+
+  .featureIcon {
+    font-size: 2.5rem;
+  }
+
+  .featureCard h3 {
+    font-size: 1.2rem;
+  }
+
+  .featureCard p {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroSection {
+    padding: 2rem 1rem;
+    border-radius: 15px;
+  }
+
+  .heroTitle {
+    font-size: 1.6rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+
+  .heroTagline {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .heroButtons {
+    gap: 0.6rem;
+  }
+
+  .btnSecondary {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .featureCard {
+    padding: 1.2rem;
+  }
+
+  .featureIcon {
+    font-size: 2.2rem;
+  }
+
+  .featureCard h3 {
+    font-size: 1.1rem;
+  }
+
+  .featureCard p {
+    font-size: 0.9rem;
   }
 }

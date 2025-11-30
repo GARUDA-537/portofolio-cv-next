@@ -96,3 +96,68 @@
     color: #666;
     font-size: 0.95rem;
 }
+
+@media (max-width: 768px) {
+    .aboutHeader img {
+        width: 150px;
+        height: 150px;
+    }
+
+    .aboutContent {
+        font-size: 1rem;
+        text-align: left;
+    }
+
+    .infoGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .infoItem {
+        padding: 1.2rem;
+    }
+
+    .valuesGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .valueCard {
+        padding: 1.5rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .aboutHeader img {
+        width: 120px;
+        height: 120px;
+    }
+
+    .aboutContent {
+        font-size: 0.95rem;
+    }
+
+    .infoItem {
+        padding: 1rem;
+    }
+
+    .infoItem strong {
+        font-size: 1rem;
+    }
+
+    .valueCard {
+        padding: 1.2rem 0.8rem;
+    }
+
+    .valueIcon {
+        font-size: 2rem;
+    }
+
+    .valueCard h3 {
+        font-size: 1.1rem;
+    }
+
+    .valueCard p {
+        font-size: 0.9rem;
+    }
+}
