@@ -1,0 +1,26 @@
+# Robots.txt for SEO
+
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /skills
+Allow: /projects
+Allow: /education
+Allow: /certificates
+Allow: /contact
+
+Disallow: /admin
+Disallow: /.next
+Disallow: /api
+
+# Sitemap
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Specific crawlers
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 0

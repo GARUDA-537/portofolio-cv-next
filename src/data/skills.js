@@ -1,0 +1,111 @@
+export const skills = [
+  // Jaringan
+  {
+    id: 1,
+    name: 'VLAN Configuration',
+    category: 'Jaringan',
+    level: 90,
+    icon: '🌐',
+  },
+  {
+    id: 2,
+    name: 'MikroTik',
+    category: 'Jaringan',
+    level: 85,
+    icon: '🔧',
+  },
+  {
+    id: 3,
+    name: 'Cisco Routing',
+    category: 'Jaringan',
+    level: 80,
+    icon: '📡',
+  },
+  {
+    id: 4,
+    name: 'Network Security',
+    category: 'Jaringan',
+    level: 75,
+    icon: '🔒',
+  },
+  // Frontend
+  {
+    id: 5,
+    name: 'HTML & CSS',
+    category: 'Frontend',
+    level: 95,
+    icon: '🎨',
+  },
+  {
+    id: 6,
+    name: 'JavaScript',
+    category: 'Frontend',
+    level: 90,
+    icon: '⚡',
+  },
+  {
+    id: 7,
+    name: 'React',
+    category: 'Frontend',
+    level: 85,
+    icon: '⚛️',
+  },
+  {
+    id: 8,
+    name: 'Vue.js',
+    category: 'Frontend',
+    level: 80,
+    icon: '💚',
+  },
+  // Backend
+  {
+    id: 9,
+    name: 'PHP',
+    category: 'Backend',
+    level: 90,
+    icon: '🐘',
+  },
+  {
+    id: 10,
+    name: 'Laravel',
+    category: 'Backend',
+    level: 85,
+    icon: '🔴',
+  },
+  {
+    id: 11,
+    name: 'MySQL',
+    category: 'Backend',
+    level: 88,
+    icon: '💾',
+  },
+  {
+    id: 12,
+    name: 'Node.js',
+    category: 'Backend',
+    level: 75,
+    icon: '🟢',
+  },
+  // Soft Skill
+  {
+    id: 13,
+    name: 'Problem Solving',
+    category: 'Soft Skill',
+    level: 90,
+    icon: '🧠',
+  },
+  {
+    id: 14,
+    name: 'Team Collaboration',
+    category: 'Soft Skill',
+    level: 85,
+    icon: '🤝',
+  },
+  {
+    id: 15,
+    name: 'Communication',
+    category: 'Soft Skill',
+    level: 80,
+    icon: '💬',
+  },
+];
