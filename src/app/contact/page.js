@@ -1,6 +1,7 @@
 'use client';
 
 import { profile } from '@/data/profile';
+import ContactForm from '@/components/ContactForm';
 
 export default function Contact() {
   return (
@@ -10,7 +11,22 @@ export default function Contact() {
           <h1>💬 Hubungi Saya</h1>
           <p style={{ fontSize: '1.1rem', color: '#666', maxWidth: '700px', margin: '1rem auto' }}>
             Saya terbuka untuk peluang kerja sama, diskusi, atau sekadar berbagi informasi tentang teknologi.
+            Silakan hubungi saya melalui web form atau langsung via Gmail di bawah ini.
           </p>
+        </div>
+
+        {/* Contact Form with 2 options */}
+        <div style={{ 
+          background: 'white',
+          borderRadius: '15px',
+          padding: '2rem',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+          marginBottom: '3rem'
+        }}>
+          <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: '#2c3e50' }}>
+            ✉️ Hubungi Saya
+          </h2>
+          <ContactForm />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '3rem' }}>
