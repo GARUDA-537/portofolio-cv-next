@@ -26,11 +26,11 @@ export default function ContactForm() {
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
 
-    // Validasi ukuran file (max 5MB per file)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // Validasi ukuran file (max 25MB per file - Batas Gmail)
+    const maxSize = 25 * 1024 * 1024; // 25MB
     const validFiles = selectedFiles.filter(file => {
       if (file.size > maxSize) {
-        setStatus(`❌ File "${file.name}" terlalu besar. Maksimal 5MB per file.`);
+        setStatus(`❌ File "${file.name}" terlalu besar. Maksimal 25MB (Batas Email).`);
         setTimeout(() => setStatus(''), 5000);
         return false;
       }
@@ -320,7 +320,7 @@ export default function ContactForm() {
               color: '#666',
               marginTop: '0.5rem',
             }}>
-              📎 Maksimal 5MB per file. Format: PDF, DOC, DOCX, JPG, PNG, TXT, ZIP
+              📎 Maksimal 25MB (Batas Email). Untuk file lebih besar, mohon sertakan link Google Drive/Dropbox di pesan.
             </p>
 
             {files.length > 0 && (
