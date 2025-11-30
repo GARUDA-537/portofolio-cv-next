@@ -2,7 +2,14 @@ import nodemailer from 'nodemailer';
 
 export async function POST(request) {
   try {
-    const { name, email, subject, message, to } = await request.json();
+    const formData = await request.formData();
+
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const subject = formData.get('subject');
+    const message = formData.get('message');
+    const to = formData.get('to');
+    const files = formData.getAll('files');
 
     // Validasi input
     if (!name || !email || !subject || !message) {
@@ -13,8 +20,6 @@ export async function POST(request) {
     }
 
     // Konfigurasi SMTP untuk Gmail
-    // PENTING: Gunakan App Password, bukan password akun biasa
-    // Petunjuk: https://support.google.com/accounts/answer/185833
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -29,13 +34,33 @@ export async function POST(request) {
     } catch (error) {
       console.error('SMTP Verification failed:', error);
       return Response.json(
-        { 
+        {
           message: 'Konfigurasi email belum diatur. Hubungi admin untuk konfigurasi.',
           details: process.env.NODE_ENV === 'development' ? error.message : undefined
         },
         { status: 500 }
       );
     }
+
+    // Process attachments
+    const attachments = [];
+    if (files && files.length > 0) {
+      for (const file of files) {
+        if (file.size > 0) {
+          const buffer = Buffer.from(await file.arrayBuffer());
+          attachments.push({
+            filename: file.name,
+            content: buffer,
+            contentType: file.type,
+          });
+        }
+      }
+    }
+
+    const filesInfo = attachments.length > 0
+      ? `<p><strong>📎 File Terlampir:</strong> ${attachments.length} file</p>
+         <ul>${attachments.map(att => `<li>${att.filename}</li>`).join('')}</ul>`
+      : '';
 
     // Email ke penerima (portfolio owner)
     const mailOptions = {
@@ -53,6 +78,8 @@ export async function POST(request) {
             <p><strong>✉️ Email:</strong> <a href="mailto:${email}">${email}</a></p>
             <p><strong>📌 Subjek:</strong> ${subject}</p>
             
+            ${filesInfo}
+            
             <hr style="border: none; border-top: 2px solid #eee; margin: 20px 0;">
             
             <h3 style="color: #2c3e50;">Pesan:</h3>
@@ -67,6 +94,7 @@ export async function POST(request) {
         </div>
       `,
       replyTo: email,
+      attachments: attachments.length > 0 ? attachments : undefined,
     };
 
     // Kirim email
@@ -89,6 +117,7 @@ export async function POST(request) {
             <div style="background: #f0f0f0; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; border-radius: 3px;">
               <p><strong>Subjek:</strong> ${subject}</p>
               <p style="color: #666; font-size: 0.9rem;">Waktu: ${new Date().toLocaleString('id-ID')}</p>
+              ${attachments.length > 0 ? `<p style="color: #666; font-size: 0.9rem;">📎 File terlampir: ${attachments.length} file</p>` : ''}
             </div>
             
             <p>Terima kasih telah menghubungi saya. Saya menghargai minat Anda!</p>
@@ -109,16 +138,17 @@ export async function POST(request) {
     }
 
     return Response.json(
-      { 
+      {
         message: '✅ Pesan berhasil dikirim!',
-        success: true 
+        success: true,
+        attachmentsCount: attachments.length
       },
       { status: 200 }
     );
   } catch (error) {
     console.error('Send email error:', error);
     return Response.json(
-      { 
+      {
         message: 'Gagal mengirim pesan. Silakan coba lagi.',
         error: process.env.NODE_ENV === 'development' ? error.message : undefined
       },
@@ -126,3 +156,10 @@ export async function POST(request) {
     );
   }
 }
+
+// Configure API route to accept larger files
+export const config = {
+  api: {
+    bodyParser: false, // Disable built-in body parser for file uploads
+  },
+};

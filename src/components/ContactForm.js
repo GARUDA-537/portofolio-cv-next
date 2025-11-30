@@ -11,6 +11,7 @@ export default function ContactForm() {
     subject: '',
     message: '',
   });
+  const [files, setFiles] = useState([]);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -22,26 +23,55 @@ export default function ContactForm() {
     }));
   };
 
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+
+    // Validasi ukuran file (max 5MB per file)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const validFiles = selectedFiles.filter(file => {
+      if (file.size > maxSize) {
+        setStatus(`❌ File "${file.name}" terlalu besar. Maksimal 5MB per file.`);
+        setTimeout(() => setStatus(''), 5000);
+        return false;
+      }
+      return true;
+    });
+
+    setFiles(prevFiles => [...prevFiles, ...validFiles]);
+  };
+
+  const removeFile = (index) => {
+    setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setStatus('');
 
     try {
+      // Create FormData for file upload
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('subject', formData.subject);
+      formDataToSend.append('message', formData.message);
+      formDataToSend.append('to', profile.email);
+
+      // Append files
+      files.forEach((file) => {
+        formDataToSend.append('files', file);
+      });
+
       const response = await fetch('/api/send-email', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          to: profile.email,
-        }),
+        body: formDataToSend,
       });
 
       if (response.ok) {
         setStatus('✅ Pesan berhasil dikirim! Saya akan segera merespons.');
         setFormData({ name: '', email: '', subject: '', message: '' });
+        setFiles([]);
         setTimeout(() => setStatus(''), 5000);
       } else {
         const error = await response.json();
@@ -260,6 +290,99 @@ export default function ContactForm() {
             />
           </div>
 
+          <div>
+            <label style={{
+              display: 'block',
+              marginBottom: '0.5rem',
+              fontWeight: '600',
+              color: '#2c3e50',
+            }}>
+              Lampiran File (Opsional)
+            </label>
+            <input
+              type="file"
+              multiple
+              onChange={handleFileChange}
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt,.zip"
+              style={{
+                width: '100%',
+                padding: '0.8rem',
+                border: '2px dashed #667eea',
+                borderRadius: '8px',
+                fontSize: '0.95rem',
+                cursor: 'pointer',
+                boxSizing: 'border-box',
+                background: 'rgba(102, 126, 234, 0.05)',
+              }}
+            />
+            <p style={{
+              fontSize: '0.85rem',
+              color: '#666',
+              marginTop: '0.5rem',
+            }}>
+              📎 Maksimal 5MB per file. Format: PDF, DOC, DOCX, JPG, PNG, TXT, ZIP
+            </p>
+
+            {files.length > 0 && (
+              <div style={{
+                marginTop: '1rem',
+                padding: '1rem',
+                background: '#f8f9fa',
+                borderRadius: '8px',
+              }}>
+                <h4 style={{
+                  fontSize: '0.9rem',
+                  color: '#2c3e50',
+                  marginBottom: '0.8rem',
+                }}>
+                  📁 File Terlampir ({files.length})
+                </h4>
+                {files.map((file, index) => (
+                  <div key={index} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '0.5rem',
+                    marginBottom: '0.5rem',
+                    background: 'white',
+                    borderRadius: '5px',
+                    border: '1px solid #e0e0e0',
+                  }}>
+                    <span style={{
+                      fontSize: '0.9rem',
+                      color: '#333',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      flex: 1,
+                    }}>
+                      {file.name} ({(file.size / 1024).toFixed(1)} KB)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      style={{
+                        marginLeft: '0.5rem',
+                        padding: '0.3rem 0.6rem',
+                        background: '#dc3545',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                        fontSize: '0.8rem',
+                        transition: 'all 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => e.target.style.background = '#c82333'}
+                      onMouseLeave={(e) => e.target.style.background = '#dc3545'}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {status && (
             <div style={{
               padding: '1rem',
@@ -327,7 +450,7 @@ export default function ContactForm() {
               Hubungi via Gmail
             </h3>
             <p style={{ color: '#666', marginBottom: '2rem', lineHeight: '1.6' }}>
-              Buka Gmail secara langsung dan kirim email ke {profile.email}. 
+              Buka Gmail secara langsung dan kirim email ke {profile.email}.
               Ini adalah cara tercepat untuk menghubungi saya!
             </p>
             <button
