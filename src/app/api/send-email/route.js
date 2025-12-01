@@ -2,14 +2,7 @@ import nodemailer from 'nodemailer';
 
 export async function POST(request) {
   try {
-    const formData = await request.formData();
-
-    const name = formData.get('name');
-    const email = formData.get('email');
-    const subject = formData.get('subject');
-    const message = formData.get('message');
-    const to = formData.get('to');
-    const files = formData.getAll('files');
+    const { name, email, subject, message, to } = await request.json();
 
     // Validasi input
     if (!name || !email || !subject || !message) {
@@ -19,53 +12,52 @@ export async function POST(request) {
       );
     }
 
+    // Cek Environment Variables
+    if (!process.env.GMAIL_USER || !process.env.GMAIL_PASSWORD) {
+      console.error('❌ Missing Environment Variables: GMAIL_USER or GMAIL_PASSWORD');
+      return Response.json(
+        {
+          message: 'Konfigurasi server email belum lengkap.',
+          details: 'Environment variables GMAIL_USER atau GMAIL_PASSWORD tidak ditemukan.'
+        },
+        { status: 500 }
+      );
+    }
+
     // Konfigurasi SMTP untuk Gmail
+    // Menggunakan port 465 (SSL) yang lebih stabil di Vercel daripada port 587
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // true for 465, false for other ports
       auth: {
-        user: process.env.GMAIL_USER || 'your-email@gmail.com',
-        pass: process.env.GMAIL_PASSWORD || 'your-app-password',
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASSWORD,
       },
     });
 
     // Verifikasi koneksi
     try {
       await transporter.verify();
+      console.log('✅ SMTP Connection Verified');
     } catch (error) {
-      console.error('SMTP Verification failed:', error);
+      console.error('❌ SMTP Verification failed:', error);
       return Response.json(
         {
-          message: 'Konfigurasi email belum diatur. Hubungi admin untuk konfigurasi.',
-          details: process.env.NODE_ENV === 'development' ? error.message : undefined
+          message: 'Gagal terhubung ke server email.',
+          details: error.message
         },
         { status: 500 }
       );
     }
 
-    // Process attachments
-    const attachments = [];
-    if (files && files.length > 0) {
-      for (const file of files) {
-        if (file.size > 0) {
-          const buffer = Buffer.from(await file.arrayBuffer());
-          attachments.push({
-            filename: file.name,
-            content: buffer,
-            contentType: file.type,
-          });
-        }
-      }
-    }
-
-    const filesInfo = attachments.length > 0
-      ? `<p><strong>📎 File Terlampir:</strong> ${attachments.length} file</p>
-         <ul>${attachments.map(att => `<li>${att.filename}</li>`).join('')}</ul>`
-      : '';
+    const recipientEmail = to || process.env.GMAIL_USER;
 
     // Email ke penerima (portfolio owner)
     const mailOptions = {
       from: `"${name}" <${process.env.GMAIL_USER}>`,
-      to: to,
+      to: recipientEmail,
+      replyTo: email,
       subject: `[Portofolio] ${subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; border-radius: 10px;">
@@ -77,8 +69,6 @@ export async function POST(request) {
             <p><strong>📝 Nama:</strong> ${name}</p>
             <p><strong>✉️ Email:</strong> <a href="mailto:${email}">${email}</a></p>
             <p><strong>📌 Subjek:</strong> ${subject}</p>
-            
-            ${filesInfo}
             
             <hr style="border: none; border-top: 2px solid #eee; margin: 20px 0;">
             
@@ -93,18 +83,17 @@ export async function POST(request) {
           </p>
         </div>
       `,
-      replyTo: email,
-      attachments: attachments.length > 0 ? attachments : undefined,
     };
 
-    // Kirim email
+    // Kirim email utama
     await transporter.sendMail(mailOptions);
+    console.log('✅ Main email sent to:', recipientEmail);
 
     // Email notifikasi ke pengirim (optional)
     const confirmationEmail = {
-      from: process.env.GMAIL_USER,
+      from: `"${process.env.GMAIL_USER}" <${process.env.GMAIL_USER}>`,
       to: email,
-      subject: `✅ Pesan Anda Telah Diterima - Portofolio Moch. Farel`,
+      subject: `✅ Pesan Anda Telah Diterima - Portofolio`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; border-radius: 10px;">
           <h2 style="color: #667eea;">Terima Kasih! ✨</h2>
@@ -117,14 +106,13 @@ export async function POST(request) {
             <div style="background: #f0f0f0; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; border-radius: 3px;">
               <p><strong>Subjek:</strong> ${subject}</p>
               <p style="color: #666; font-size: 0.9rem;">Waktu: ${new Date().toLocaleString('id-ID')}</p>
-              ${attachments.length > 0 ? `<p style="color: #666; font-size: 0.9rem;">📎 File terlampir: ${attachments.length} file</p>` : ''}
             </div>
             
             <p>Terima kasih telah menghubungi saya. Saya menghargai minat Anda!</p>
           </div>
           
           <p style="color: #999; font-size: 0.85rem; text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
-            © 2024 Moch. Farel Islami Akbar | Portofolio Website
+            © ${new Date().getFullYear()} Portofolio Website
           </p>
         </div>
       `,
@@ -132,34 +120,28 @@ export async function POST(request) {
 
     try {
       await transporter.sendMail(confirmationEmail);
+      console.log('✅ Confirmation email sent to:', email);
     } catch (error) {
-      console.error('Confirmation email failed (non-critical):', error);
+      console.error('⚠️ Confirmation email failed (non-critical):', error);
       // Lanjutkan meski confirmation email gagal
     }
 
     return Response.json(
       {
         message: '✅ Pesan berhasil dikirim!',
-        success: true,
-        attachmentsCount: attachments.length
+        success: true
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error('Send email error:', error);
+    console.error('❌ Send email error:', error);
     return Response.json(
       {
         message: 'Gagal mengirim pesan. Silakan coba lagi.',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        error: error.message // Return error message for debugging
       },
       { status: 500 }
     );
   }
 }
 
-// Configure API route to accept larger files
-export const config = {
-  api: {
-    bodyParser: false, // Disable built-in body parser for file uploads
-  },
-};

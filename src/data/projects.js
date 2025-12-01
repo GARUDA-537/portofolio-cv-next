@@ -5,7 +5,15 @@ export const projects = [
     description: 'Merancang dan mendesain infrastruktur jaringan skala besar dengan topologi multi-layer menggunakan Cisco Packet Tracer',
     technology: 'Cisco Packet Tracer, Network Design, VLAN, OSPF/EIGRP',
     image_path: '/images/project-1.jpg',
-    url: 'https://drive.google.com/drive/folders/1FW48QCctO6oEJV9ZmkEgkmaHC2gNUJGh?usp=sharing',
+    url: '#',
+  },
+  {
+    id: 2,
+    title: 'Web Monitoring Persediaan Warehouse',
+    description: 'Sistem web untuk monitoring real-time persediaan barang di warehouse dengan dashboard yang user-friendly',
+    technology: 'HTML5, CSS3, JavaScript, MySQL Database',
+    image_path: '/images/project-2.jpg',
+    url: '#',
   },
   {
     id: 3,
