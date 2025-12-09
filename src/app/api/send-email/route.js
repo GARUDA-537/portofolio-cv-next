@@ -12,52 +12,35 @@ export async function POST(request) {
       );
     }
 
-    // Cek Environment Variables
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_PASSWORD) {
-      console.error('❌ Missing Environment Variables: GMAIL_USER or GMAIL_PASSWORD');
-      return Response.json(
-        {
-          message: 'Konfigurasi server email belum lengkap.',
-          details: 'Environment variables GMAIL_USER atau GMAIL_PASSWORD tidak ditemukan.'
-        },
-        { status: 500 }
-      );
-    }
-
     // Konfigurasi SMTP untuk Gmail
-    // Menggunakan port 465 (SSL) yang lebih stabil di Vercel daripada port 587
+    // PENTING: Gunakan App Password, bukan password akun biasa
+    // Petunjuk: https://support.google.com/accounts/answer/185833
     const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true, // true for 465, false for other ports
+      service: 'gmail',
       auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASSWORD,
+        user: process.env.GMAIL_USER || 'your-email@gmail.com',
+        pass: process.env.GMAIL_PASSWORD || 'your-app-password',
       },
     });
 
     // Verifikasi koneksi
     try {
       await transporter.verify();
-      console.log('✅ SMTP Connection Verified');
     } catch (error) {
-      console.error('❌ SMTP Verification failed:', error);
+      console.error('SMTP Verification failed:', error);
       return Response.json(
-        {
-          message: 'Gagal terhubung ke server email.',
-          details: error.message
+        { 
+          message: 'Konfigurasi email belum diatur. Hubungi admin untuk konfigurasi.',
+          details: process.env.NODE_ENV === 'development' ? error.message : undefined
         },
         { status: 500 }
       );
     }
 
-    const recipientEmail = to || process.env.GMAIL_USER;
-
     // Email ke penerima (portfolio owner)
     const mailOptions = {
       from: `"${name}" <${process.env.GMAIL_USER}>`,
-      to: recipientEmail,
-      replyTo: email,
+      to: to,
       subject: `[Portofolio] ${subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; border-radius: 10px;">
@@ -83,17 +66,17 @@ export async function POST(request) {
           </p>
         </div>
       `,
+      replyTo: email,
     };
 
-    // Kirim email utama
+    // Kirim email
     await transporter.sendMail(mailOptions);
-    console.log('✅ Main email sent to:', recipientEmail);
 
     // Email notifikasi ke pengirim (optional)
     const confirmationEmail = {
-      from: `"${process.env.GMAIL_USER}" <${process.env.GMAIL_USER}>`,
+      from: process.env.GMAIL_USER,
       to: email,
-      subject: `✅ Pesan Anda Telah Diterima - Portofolio`,
+      subject: `✅ Pesan Anda Telah Diterima - Portofolio Moch. Farel`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; border-radius: 10px;">
           <h2 style="color: #667eea;">Terima Kasih! ✨</h2>
@@ -112,7 +95,7 @@ export async function POST(request) {
           </div>
           
           <p style="color: #999; font-size: 0.85rem; text-align: center; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
-            © ${new Date().getFullYear()} Portofolio Website
+            © 2024 Moch. Farel Islami Akbar | Portofolio Website
           </p>
         </div>
       `,
@@ -120,28 +103,26 @@ export async function POST(request) {
 
     try {
       await transporter.sendMail(confirmationEmail);
-      console.log('✅ Confirmation email sent to:', email);
     } catch (error) {
-      console.error('⚠️ Confirmation email failed (non-critical):', error);
+      console.error('Confirmation email failed (non-critical):', error);
       // Lanjutkan meski confirmation email gagal
     }
 
     return Response.json(
-      {
+      { 
         message: '✅ Pesan berhasil dikirim!',
-        success: true
+        success: true 
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error('❌ Send email error:', error);
+    console.error('Send email error:', error);
     return Response.json(
-      {
+      { 
         message: 'Gagal mengirim pesan. Silakan coba lagi.',
-        error: error.message // Return error message for debugging
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
       },
       { status: 500 }
     );
   }
 }
-

@@ -21,18 +21,9 @@ export default function Projects() {
                 {projects.map((project, index) => (
                     <div key={index} className={styles.projectCard}>
                         <div className={styles.projectImage}>
-                            {project.image_path ? (
-                                <Image
-                                    src={project.image_path}
-                                    alt={project.title}
-                                    fill
-                                    style={{ objectFit: 'cover' }}
-                                />
-                            ) : (
-                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)', color: '#999', fontSize: '3rem' }}>
-                                    📁
-                                </div>
-                            )}
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)', color: '#999', fontSize: '3rem' }}>
+                                📁
+                            </div>
                         </div>
                         <div className={styles.projectContent}>
                             <h3>{project.title}</h3>
