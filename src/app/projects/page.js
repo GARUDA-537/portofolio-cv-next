@@ -20,11 +20,6 @@ export default function Projects() {
             <div className={styles.projectsGrid}>
                 {projects.map((project, index) => (
                     <div key={index} className={styles.projectCard}>
-                        <div className={styles.projectImage}>
-                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)', color: '#999', fontSize: '3rem' }}>
-                                📁
-                            </div>
-                        </div>
                         <div className={styles.projectContent}>
                             <h3>{project.title}</h3>
                             <div dangerouslySetInnerHTML={{ __html: project.description }} style={{ color: '#666', fontSize: '0.95rem', marginBottom: '1.5rem', flexGrow: 1 }} />
